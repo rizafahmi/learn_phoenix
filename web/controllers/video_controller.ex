@@ -12,6 +12,7 @@ defmodule Rumbl.VideoController do
   end
 
   def index(conn, _params, user) do
+    IO.inspect user
     videos = Repo.all(user_videos(user))
     render(conn, "index.html", videos: videos)
   end
