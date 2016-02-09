@@ -12,6 +12,7 @@ let Video = {
     let videoId = element.getAttribute("data-id")
     let playerId = element.getAttribute("data-player-id")
     Player.init(element.id, playerId)
+    debugger
 
     socket.connect()
     let vidChannel = socket.channel("videos:" + videoId)
@@ -38,8 +39,8 @@ let Video = {
     })
 
     vidChannel.join()
-      .receive("ok", resp => {
-        this.scheduleMessages(msgContainer, resp.annotations)
+      .receive("ok", ({annotations}) => {
+        annotations.forEach( ann => this.renderAnnotation(msgContainer, ann) )
       })
       .receive("error", reason => console.log('join failed', reason))
 
@@ -61,10 +62,7 @@ let Video = {
   },
   scheduleMessages(msgContainer, annotations) {
     setTimeout(() => {
-      debugger
-      let ctime = 0
-      if (Player)
-        Player.getCurrentTime()
+      let ctime = Player.getCurrentTime()
       let remaining = this.renderAtTime(annotations, ctime, msgContainer)
       this.scheduleMessages(msgContainer, remaining)
     })
