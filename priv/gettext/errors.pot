@@ -3,8 +3,13 @@
 ## translations that can't be statically extracted. Run `mix
 ## gettext.extract` to bring this file up to date. Leave `msgstr`s empty as
 ## changing them here as no effect; edit them in PO (`.po`) files instead.
+
 ## From Ecto.Changeset.cast/4
 msgid "can't be blank"
+msgstr ""
+
+## From Ecto.Changeset.unique_constraint/3
+msgid "has already been taken"
 msgstr ""
 
 ## From Ecto.Changeset.put_change/3
