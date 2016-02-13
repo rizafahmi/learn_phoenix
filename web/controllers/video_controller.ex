@@ -2,33 +2,30 @@ defmodule Rumbl.VideoController do
   use Rumbl.Web, :controller
 
   alias Rumbl.Video
+  alias Rumbl.Category
 
   plug :scrub_params, "video" when action in [:create, :update]
   plug :load_categories when action in [:new, :create, :edit, :update]
 
-  def action(conn, _) do
-    apply(__MODULE__, action_name(conn),
-          [conn, conn.params, conn.assigns.current_user])
-  end
-
   def index(conn, _params, user) do
-    IO.inspect user
     videos = Repo.all(user_videos(user))
     render(conn, "index.html", videos: videos)
   end
 
   def new(conn, _params, user) do
-    changeset = user
-    |> Ecto.Model.build(:videos)
-    |> Video.changeset()
+    changeset = 
+      user
+      |> build_assoc(:videos)
+      |> Video.changeset()
+
     render(conn, "new.html", changeset: changeset)
   end
 
   def create(conn, %{"video" => video_params}, user) do
-    changeset =
+    changeset = 
       user
-    |> Ecto.Model.build(:videos)
-    |> Video.changeset(video_params)
+      |> build_assoc(:videos)
+      |> Video.changeset(video_params)
 
     case Repo.insert(changeset) do
       {:ok, _video} ->
@@ -77,13 +74,21 @@ defmodule Rumbl.VideoController do
     |> redirect(to: video_path(conn, :index))
   end
 
+  def action(conn, _) do
+    apply(__MODULE__, action_name(conn),
+      [conn, conn.params, conn.assigns.current_user])
+  end
+
   defp user_videos(user) do
     assoc(user, :videos)
   end
 
   defp load_categories(conn, _) do
-    categories = Repo.all from(c in Rumbl.Category, order_by: c.name,
-                                select: {c.name, c.id})
+    query =
+    Category
+    |> Category.alphabetical
+    |> Category.name_and_id
+    categories = Repo.all(query)
     assign(conn, :categories, categories)
   end
 end
